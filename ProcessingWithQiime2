@@ -1,0 +1,77 @@
+#----Demultiplex with Mr_Demuxy--------
+#unzip file 
+unzip *.zip
+
+#unzip fastq.gz files  
+gunzip *.fastq.gz
+
+#Run Mr_Demuxy
+pe_demuxer.py -r1 R1.fastq -r2 R2.fastq -r1_bc R1_barcodes.txt -r2_bc R2_barcodes.txt
+
+#Compress fastq files to fastq.gz
+gzip *.fastq
+
+#Rename samples
+mkdir named
+
+xargs -n2 bash -c 'mv $1 named/$2' {} < namingfile.txt
+
+#----Qiime2--------
+#Activate Qiime
+conda activate qiime2-2020.8
+
+#Import data
+qiime tools import --type 'SampleData[PairedEndSequencesWithQuality]' --input-path ~/NGA/18S --input-format CasavaOneEightSingleLanePerSampleDirFmt --output-path qiime/demux-paired-end.qza
+
+#Summarize demux stats
+qiime demux summarize --i-data demux-paired-end.qza --o-visualization demuxstats18SNGA
+
+#Looking at 18S stats 
+#Forward reads drop to a quality score less than 25 around sequence base position 250
+#Reverse reads drop around sequence base position 210
+
+#Quality filter and denoise using DADA2
+qiime dada2 denoise-paired --i-demultiplexed-seqs demux-paired-end.qza --p-trunc-len-f 250 --p-trunc-len-r 210 --p-n-threads 20 --output-dir filtered
+
+#Generate a feature table
+qiime feature-table summarize --i-table filtered/table.qza --o-visuaization feature-table
+
+qiime feature-table tabulate-seqs --i-data filtered/representative_sequences.qza --o-visualization rep-seqs
+
+#Build a phylogenetic tree
+qiime alignment mafft --i-sequences filtered/representative_sequences.qza --o-alignment aligned-rep-seqs
+
+qiime alignment mask --i-alignment aligned-rep-seqs.qza --o-masked-alignment masked-aligned-rep-seqs
+
+qiime phylogeny fasttree --i-alignment masked-aligned-rep-seqs.qza --o-tree unrooted-tree
+
+qiime phylogeny midpoint-root --i-tree unrooted-tree.qza --o-rooted-tree rooted-tree
+
+#Alpha rarefaction
+qiime diversity alpha-rarefaction --i-table filtered/table.qza --i-phylogeny rooted-tree.qza --p-max-depth 1000 --m-metadata-file NGA18SMapping.txt --o-visualization alpha-rarefaction1000 
+
+#Core metrics results
+qiime diversity core-metrics-phylogenetic --i-phylogeny rooted-tree.qza --i-table filtered/table.qza --p-sampling-depth 1000 --m-metadata-file NGA18SMapping.txt --output-dir core-metrics-results
+
+qiime diversity alpha-group-significance --i-alpha-diversity core-metrics-results/faith_pd_vector.qza --m-metadata-file NGA18SMapping.txt --o-visualization core-metrics-results/faith_pd_vector
+
+qiime diversity alpha-group-significance --i-alpha-diversity core-metrics-results/evenness_vector.qza --m-metadata-file NGA18SMapping.txt --o-visualization core-metrics-results/evenness-group-significance 
+
+qiime diversity alpha-group-significance --i-alpha-diversity core-metrics-results/shannon_vector.qza --m-metadata-file NGA18SMapping.txt --o-visualization core-metrics-results/shannon_group_significance 
+
+#----For ASV's--------
+#Assign Taxonomy
+qiime feature-classifier classify-sklearn --i-reads filtered/representative_sequences.qza --i-classifier /usr/local/share/qiime/silva-138-99-515-806-nb-classifier.qza --p-n-jobs 20 --output-dir classify
+
+#Interactive barchart taxa
+qiime taxa barplot --i-table filtered/table.qza --i-taxonomy classify/classification.qza --m-metadata-file NGA18SMapping.txt --output-dir visualization
+
+#------Using pr2 database----------
+qiime feature-classifier classify-sklearn --p-n-jobs 20 --i-classifier ~/pr2_Database/classifier/pr2_v4.13.0_v9_classifier.qza --i-reads filtered/representative_sequences.qza --output-dir pr2classification
+
+qiime taxa barplot --i-table filtered/table.qza --i-taxonomy pr2classification/classification.qza --m-metadata-file mapping18S.txt --output-dir pr2classification/visualization
+
+
+
+
+
