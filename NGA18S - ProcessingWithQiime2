@@ -1,4 +1,3 @@
-#######################################
 #----Demultiplex with Mr_Demuxy--------
 #unzip file 
 unzip *.zip
@@ -17,7 +16,6 @@ mkdir named
 
 xargs -n2 bash -c 'mv $1 named/$2' {} < namingfile.txt
 
-#####################
 #----Qiime2--------
 #Activate Qiime
 conda activate qiime2-2020.8
@@ -61,7 +59,6 @@ qiime diversity alpha-group-significance --i-alpha-diversity core-metrics-result
 
 qiime diversity alpha-group-significance --i-alpha-diversity core-metrics-results/shannon_vector.qza --m-metadata-file NGA18SMapping.txt --o-visualization core-metrics-results/shannon_group_significance 
 
-######################
 #----For ASV's--------
 #Assign Taxonomy
 qiime feature-classifier classify-sklearn --i-reads filtered/representative_sequences.qza --i-classifier /usr/local/share/qiime/silva-138-99-515-806-nb-classifier.qza --p-n-jobs 20 --output-dir classify
@@ -69,7 +66,6 @@ qiime feature-classifier classify-sklearn --i-reads filtered/representative_sequ
 #Interactive barchart taxa
 qiime taxa barplot --i-table filtered/table.qza --i-taxonomy classify/classification.qza --m-metadata-file NGA18SMapping.txt --output-dir visualization
 
-#######################
 #------Using pr2 database----------
 qiime feature-classifier classify-sklearn --p-n-jobs 20 --i-classifier ~/pr2_Database/classifier/pr2_v4.13.0_v9_classifier.qza --i-reads filtered/representative_sequences.qza --output-dir pr2classification
 
