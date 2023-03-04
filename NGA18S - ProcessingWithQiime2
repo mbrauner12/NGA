@@ -89,7 +89,7 @@ qiime diversity alpha-group-significance --i-alpha-diversity core-metrics-result
 
 qiime diversity alpha-group-significance --i-alpha-diversity core-metrics-results/shannon_vector.qza --m-metadata-file mapping18S.txt --o-visualization core-metrics-results/shannon_group-significance 
 
-#Depth Plate Year Line
+#Depth Year 
 qiime diversity beta-group-significance --i-distance-matrix core-metrics-results/unweighted_unifrac_distance_matrix.qza --m-metadata-file mapping18S.txt --m-metadata-column Year --o-visualization core-metrics-results/unweighted-unifrac-year-significance --p-pairwise
 
 qiime diversity beta-group-significance --i-distance-matrix core-metrics-results/unweighted_unifrac_distance_matrix.qza --m-metadata-file mapping18S.txt --m-metadata-column Depth --o-visualization core-metrics-results/unweighted-unifrac-depth-significance --p-pairwise
