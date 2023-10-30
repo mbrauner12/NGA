@@ -65,7 +65,7 @@ qiime feature-classifier classify-sklearn --i-reads clustered_sequences.qza --i-
 
 #----------------------------
 #Filter
-qiime taxa filter-table --i-table filtered/table.qza --i-taxonomy classify/classification.qza --p-exclude Mitochondria,Chloroplast,Metazoa,Streptophyta,Rhodophyta,Arthropoda,Annelida,Unassigned --o-filtered-table 18Sfiltered-table.qza
+qiime taxa filter-table --i-table clustered_table.qza --i-taxonomy classify/classification.qza --p-exclude Mitochondria,Chloroplast,Metazoa,Streptophyta,Rhodophyta,Arthropoda,Annelida,Unassigned --o-filtered-table 18Sfiltered-table.qza
 
 ################################
 #Build a phylogenetic tree
