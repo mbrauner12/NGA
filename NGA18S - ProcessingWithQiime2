@@ -44,7 +44,7 @@ qiime demux summarize --i-data demux-paired-end.qza --o-visualization demuxstats
 #Looking at 18S stats 
 
 #Quality filter and denoise using DADA2
-qiime dada2 denoise-paired --i-demultiplexed-seqs demux-paired-end-trimmedprimer18SNGA.qza --p-trunc-len-f 230 --p-trunc-len-r 180 --p-n-threads 20 --output-dir filtered
+qiime dada2 denoise-paired --i-demultiplexed-seqs demux-paired-end-trimmedprimer18SNGA.qza --p-trunc-len-f 120 --p-trunc-len-r 120 --p-n-threads 20 --output-dir filtered
 
 #Summarize table reads
 qiime feature-table summarize --i-table ~/NGASequences/18S/filtered/table.qza --o-visualization ~/NGASequences/18S/filtered/table
